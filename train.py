@@ -19,22 +19,41 @@ DATA = os.path.join(ROOT, "data")
 ARTIFACTS = os.path.join(ROOT, "artifacts")
 
 
+def _market_source():
+    p = os.path.join(DATA, "market_source.txt")
+    return open(p).read().strip() if os.path.exists(p) else "unknown"
+
+
 def _load_or_generate():
+    """Market data is used as-is if present (it may be REAL H-1B data written by
+    data/ingest_h1b.py); only generated if missing. Offers are ALWAYS synthetic:
+    accept/decline outcomes are internal data with no public ground truth, so the
+    acceptance model is trained on a simulated-but-realistic process."""
     mpath = os.path.join(DATA, "market_comp.csv")
     opath = os.path.join(DATA, "offers.csv")
-    if os.path.exists(mpath) and os.path.exists(opath):
-        return pd.read_csv(mpath), pd.read_csv(opath)
-    print("Sample data not found -- generating...")
-    market, offers = generate()
-    market.to_csv(mpath, index=False)
-    offers.to_csv(opath, index=False)
+
+    if os.path.exists(mpath):
+        market = pd.read_csv(mpath)
+    else:
+        print("Market data not found -- generating synthetic sample...")
+        market, _ = generate()
+        market.to_csv(mpath, index=False)
+
+    if os.path.exists(opath):
+        offers = pd.read_csv(opath)
+    else:
+        print("Offers not found -- generating synthetic offers (no public source)...")
+        _, offers = generate()
+        offers.to_csv(opath, index=False)
+
     return market, offers
 
 
 def main():
     market, offers = _load_or_generate()
+    print(f"Market data source: {_market_source()}")
     print(f"Loaded {len(market):,} market rows, {len(offers):,} offers "
-          f"({offers['accepted'].mean():.1%} accepted).")
+          f"({offers['accepted'].mean():.1%} accepted, synthetic).")
 
     # Hold out for honest metrics.
     m_train = market.sample(frac=0.8, random_state=1)

@@ -97,6 +97,8 @@ if __name__ == "__main__":
     market, offers = generate()
     market.to_csv(os.path.join(HERE, "market_comp.csv"), index=False)
     offers.to_csv(os.path.join(HERE, "offers.csv"), index=False)
+    with open(os.path.join(HERE, "market_source.txt"), "w") as f:
+        f.write("synthetic (grounded sample from data/generate_sample.py)")
     print(f"Wrote {len(market):,} market rows -> data/market_comp.csv")
     print(f"Wrote {len(offers):,} offer rows  -> data/offers.csv "
           f"({offers['accepted'].mean():.1%} accepted)")

@@ -67,10 +67,17 @@ python analysis/causal_pay_attrition.py
 
 The pipeline runs on a **synthetic-but-grounded** dataset by default (`data/generate_sample.py`) so it works instantly anywhere, including on Replit, without shipping large files. The numbers are anchored to publicly reported tech comp (Levels.fyi / BLS ranges).
 
-To run on **real public data**, edit `data/sources.json` with current release URLs and run `python data/download_data.py`:
+### Running on REAL H-1B LCA data
 
-- **H-1B LCA Disclosure Data** (US DOL OFLC) — actual offered wages by employer, title, SOC code, worksite. The closest public proxy to real offer data.
-- **BLS OEWS** — wage percentiles by occupation and metro, to ground "market percentile."
+The market-band model can be trained on **actual US DOL H-1B LCA disclosure data** — real offered wages by job title, SOC code, and worksite. This path is fully built (`data/ingest_h1b.py`):
+
+1. Download the latest **LCA Programs (H-1B, H-1B1, E-3)** disclosure `.xlsx` from the [DOL OFLC Performance Data page](https://www.dol.gov/agencies/eta/foreign-labor/performance) **in your browser** (DOL's CDN blocks scripted downloads), and save it into `data/raw/`.
+2. `python data/ingest_h1b.py` — streams the file (handles the ~180MB annual file without loading it all into memory), keeps certified tech roles, normalizes wages to annual, levels free-text titles via `src/leveling.py`, buckets worksites into metros, and writes `data/market_comp.csv`.
+3. `python train.py` — retrains the band model on the real data and records the provenance.
+
+> **⚠️ Data-provenance caveat (important, and a talking point):** the LCA wage is the **offered base wage** on the petition. It *excludes equity and bonus* and clusters near prevailing-wage floors, so these real bands read **lower** than total-comp sources like Levels.fyi. The model is honest about what it measures: *base-wage* competitiveness, not total comp. The acceptance model stays synthetic — accept/decline outcomes are internal data with no public ground truth.
+
+Real-data coverage is strongest for engineering/data roles (clean SOC codes: Software Developers `15-1252`, Data Scientists `15-2051`, etc.); Product Manager / Designer have no clean H-1B SOC mapping and are sparse on this source.
 
 Free-text titles are normalized onto the leveling ladder by `src/leveling.py` (auditable keyword rules — no black box, which matters for high-stakes comp).
 
@@ -103,7 +110,8 @@ src/model.py         quantile market-band model
 src/acceptance.py    offer-acceptance model + "offer for target accept" solver
 src/agent.py         Claude-drafted recommendation (template fallback)
 data/generate_sample.py   grounded synthetic data
-data/download_data.py     real H-1B LCA + BLS OEWS downloader
+data/ingest_h1b.py        REAL H-1B LCA xlsx -> cleaned market_comp.csv
+data/download_data.py     real H-1B LCA + BLS OEWS downloader (URLs in sources.json)
 analysis/causal_pay_attrition.py   PSM: does below-market pay cause attrition?
 train.py             train + evaluate + save artifacts
 app.py               Streamlit reference app
