@@ -24,20 +24,40 @@ def _market_source():
     return open(p).read().strip() if os.path.exists(p) else "unknown"
 
 
+def _write_source(text):
+    with open(os.path.join(DATA, "market_source.txt"), "w") as f:
+        f.write(text)
+
+
 def _load_or_generate():
-    """Market data is used as-is if present (it may be REAL H-1B data written by
-    data/ingest_h1b.py); only generated if missing. Offers are ALWAYS synthetic:
-    accept/decline outcomes are internal data with no public ground truth, so the
-    acceptance model is trained on a simulated-but-realistic process."""
+    """Market-data priority:
+      1. data/market_comp.csv      -- a local working file (e.g. REAL data freshly
+                                       written by data/ingest_h1b.py).
+      2. data/market_h1b.csv       -- the committed, de-identified REAL H-1B band
+                                       sample that ships in the repo (so a fresh
+                                       deploy like Replit trains on real bands).
+      3. synthetic                 -- generated if neither exists.
+    Offers are ALWAYS synthetic: accept/decline outcomes are internal data with no
+    public ground truth, so the acceptance model is trained on a simulated process."""
     mpath = os.path.join(DATA, "market_comp.csv")
+    h1bpath = os.path.join(DATA, "market_h1b.csv")
     opath = os.path.join(DATA, "offers.csv")
 
     if os.path.exists(mpath):
         market = pd.read_csv(mpath)
+        # Preserve an existing provenance marker (ingest writes one); if absent,
+        # this is likely the committed real sample copied into place.
+        if _market_source() == "unknown":
+            _write_source("REAL: DOL H-1B LCA (cleaned working file, base wage only)")
+    elif os.path.exists(h1bpath):
+        market = pd.read_csv(h1bpath)
+        _write_source(f"REAL: DOL H-1B LCA committed sample ({len(market):,} "
+                      f"de-identified records; offered BASE wage only, excl. equity/bonus)")
     else:
         print("Market data not found -- generating synthetic sample...")
         market, _ = generate()
         market.to_csv(mpath, index=False)
+        _write_source("synthetic (grounded sample from data/generate_sample.py)")
 
     if os.path.exists(opath):
         offers = pd.read_csv(opath)

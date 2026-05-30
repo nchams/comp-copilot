@@ -3,6 +3,11 @@ data/*.csv
 data/raw/
 data/market_source.txt
 artifacts/
+
+# EXCEPTION: ship the cleaned, de-identified REAL H-1B band data (4.5MB, derived
+# from public-domain DOL disclosure data) so the deployed app trains on real
+# bands. No names/employers/case numbers -- just role/level/metro/base wage.
+!data/market_h1b.csv
 __pycache__/
 *.pyc
 .venv/

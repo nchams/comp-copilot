@@ -41,6 +41,13 @@ market_model, accept_model = load_models()
 st.title("💰 Comp Co-Pilot")
 st.caption("Market benchmarking + offer recommendations — a first-pass draft People leaders review, not a dashboard.")
 
+from train import _market_source  # noqa: E402
+_src = _market_source()
+if _src.startswith("REAL"):
+    st.caption(f"📊 **Data:** {_src}")
+elif _src != "unknown":
+    st.caption(f"📊 **Data:** {_src}")
+
 if market_model is None:
     st.error("No trained models found. Run `python train.py` first to create artifacts/.")
     st.stop()
