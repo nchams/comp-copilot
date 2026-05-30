@@ -1,0 +1,20 @@
+# Replit configuration. On import, Replit detects this and runs the app.
+run = "streamlit run app.py --server.port 8080 --server.address 0.0.0.0 --server.headless true"
+entrypoint = "app.py"
+modules = ["python-3.12"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "streamlit run app.py --server.port 8080 --server.address 0.0.0.0 --server.headless true"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 8080
+externalPort = 80
+
+[env]
+# Set ANTHROPIC_API_KEY in the Replit "Secrets" tab to enable Claude-drafted
+# recommendations. Without it the app falls back to a deterministic template.
+PYTHONUNBUFFERED = "1"

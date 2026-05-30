@@ -1,0 +1,5 @@
+{
+  "_comment": "Replace the URLs below with the CURRENT release links from the landing pages in download_data.py. These change every release, which is why they live in config rather than code.",
+  "h1b_lca": "https://www.dol.gov/sites/dolgov/files/ETA/oflc/pdfs/LCA_Disclosure_Data_FY2024.xlsx",
+  "bls_oews": "https://www.bls.gov/oes/special-requests/oesm23ma.zip"
+}
