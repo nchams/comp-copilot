@@ -110,6 +110,37 @@ app.py               Streamlit reference app
 REPLIT_AGENT_PROMPT.md    spec to rebuild/deploy the UI on Replit
 ```
 
+## Building this on Replit
+
+> _Fill this in after you rebuild the UI with Replit Agent and deploy. This
+> short reflection is the part that demonstrates the JD's "Experience building
+> on Replit" bonus and "Interest in the future of AI-native organizations."_
+
+**Live app:** `<paste your *.replit.app URL here>`
+
+**Approach.** I did the data engineering and modeling locally (reproducible,
+testable), then used **Replit Agent** to build and deploy the front-end around
+the trained model artifacts — the same division of labor a People DS team would
+use to ship an internal tool fast.
+
+**What Replit Agent got right on the first pass:**
+- `<e.g. scaffolded the full Streamlit layout + sidebar inputs from the spec>`
+- `<e.g. wired the plotly band chart and acceptance curve correctly>`
+- `<...>`
+
+**Where I stepped in:**
+- `<e.g. fixed quantile-crossing so p25 <= p50 <= p75 always holds>`
+- `<e.g. tightened the agent prompt so it never invents numbers>`
+- `<...>`
+
+**Time from model artifact to deployed internal tool:** `<e.g. ~45 minutes>`
+
+**What this implies for AI-native People ops.** `<1-2 sentences: e.g. a People
+team member who isn't an engineer could ship their own decision-support tool
+this way, collapsing the gap between "we need a model for X" and "it's live" from
+weeks to an afternoon — which is exactly the operating model this role is meant
+to build.>`
+
 ## Roadmap (production version)
 
 - Point at live Ashby offer data + Carta band structure behind access controls.
