@@ -26,8 +26,13 @@ st.set_page_config(page_title="Comp Co-Pilot", page_icon="💰", layout="wide")
 
 @st.cache_resource
 def load_models():
+    # On a fresh deploy (e.g. Replit) there are no committed artifacts/data;
+    # bootstrap them on first launch so the app just works. If real H-1B data
+    # was ingested locally, those artifacts are used instead.
     if not os.path.exists(os.path.join(ARTIFACTS, "market_model.joblib")):
-        return None, None
+        from train import ensure_trained
+        with st.spinner("First launch: training models on sample data…"):
+            return ensure_trained(ARTIFACTS)
     return MarketModel.load(ARTIFACTS), AcceptanceModel.load(ARTIFACTS)
 
 

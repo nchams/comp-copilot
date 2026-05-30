@@ -49,6 +49,23 @@ def _load_or_generate():
     return market, offers
 
 
+def ensure_trained(artifact_dir=ARTIFACTS):
+    """Idempotent bootstrap for deployment (e.g. Replit): if model artifacts are
+    missing, generate sample data as needed and train + save them. Returns the
+    loaded models. On a repo with no committed data/artifacts, this makes the app
+    work on first launch without a manual `python train.py` step."""
+    from src.model import MarketModel
+    from src.acceptance import AcceptanceModel
+    if os.path.exists(os.path.join(artifact_dir, "market_model.joblib")):
+        return MarketModel.load(artifact_dir), AcceptanceModel.load(artifact_dir)
+    market, offers = _load_or_generate()
+    market_model = MarketModel().fit(market)
+    accept_model = AcceptanceModel().fit(offers)
+    market_model.save(artifact_dir)
+    accept_model.save(artifact_dir)
+    return market_model, accept_model
+
+
 def main():
     market, offers = _load_or_generate()
     print(f"Market data source: {_market_source()}")
