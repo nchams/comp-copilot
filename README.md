@@ -79,6 +79,21 @@ The market-band model can be trained on **actual US DOL H-1B LCA disclosure data
 
 Real-data coverage is strongest for engineering/data roles (clean SOC codes: Software Developers `15-1252`, Data Scientists `15-2051`, etc.); Product Manager / Designer have no clean H-1B SOC mapping and are sparse on this source.
 
+#### Real-data results (ran on an actual DOL LCA file)
+
+Ingested an actual FY2026 LCA disclosure file: **scanned 1,039,355 records → kept 103,655** certified tech roles (Software Engineer 72.6K, Data Scientist 13.7K, Data Engineer 8.0K, Engineering Manager 6.0K). Retrained band model: **p25–p75 coverage 49.8%** (target 50% — well calibrated on real data).
+
+Real **base-wage** bands, SF Bay Area (offered base only — *excludes equity/bonus*):
+
+| Role | Level | p25 | p50 | p75 |
+|---|---|---:|---:|---:|
+| Software Engineer | L3 | $167K | $190K | $220K |
+| Software Engineer | L5 | $175K | $203K | $229K |
+| Data Scientist | L4 | $170K | $190K | $222K |
+| Engineering Manager | L5 | $219K | $254K | $281K |
+
+The headline finding is a **data-provenance lesson**: a Data Scientist L4 in SF shows a real H-1B base-wage p50 of ~$190K vs. ~$261K from total-comp-anchored synthetic data. That ~$70K gap is precisely the equity + bonus that LCA base-wage filings omit — so this model benchmarks *base-wage competitiveness*, and total-comp benchmarking would require layering an equity/bonus source on top.
+
 Free-text titles are normalized onto the leveling ladder by `src/leveling.py` (auditable keyword rules — no black box, which matters for high-stakes comp).
 
 > **On sensitive data:** real compensation and attrition data is confidential. This project intentionally uses *public proxies* and synthetic data. The architecture is identical to a production system pointed at internal sources (Ashby, Rippling, Carta) behind proper access controls.
